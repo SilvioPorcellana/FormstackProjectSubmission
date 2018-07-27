@@ -1,0 +1,8 @@
+{
+    "require": {
+        "robmorgan/phinx": "^0.10.5"
+    },
+    "require-dev": {
+        "codeception/codeception": "^2.4"
+    }
+}
