@@ -12,7 +12,8 @@
 
 #### Migrations
 
-The system uses the Phinx migrations system (see <https://phinx.org/>) to manage the database structure and tables. This system uses the phynx.yml file (in the /src directory) to store database access data and other config options. For security reasons this script is not in version control, therefore if it's not present it needs to be created starting from the phinx.yml.dist file 
+The system uses the Phinx migrations system (see <https://phinx.org/>) to manage the database structure and tables. This system uses the phynx.yml file (in the /src directory) to store database access data and other config options. For security reasons this script is not in version control, therefore if it's not present it needs to be created starting from the phinx.yml.dist file. After creating the phinx.yml file the following command needs to be called in the `src` folder to execute the required migrations:
+```vendor/bin/phinx migrate -e development```
 
 ----
  

@@ -46,7 +46,7 @@ class Document
      */
     private static function _pdo()
     {
-        $_config_file_path = $_SERVER['DOCUMENT_ROOT'] . '/../../src/_config.ini';
+        $_config_file_path = $_SERVER['DOCUMENT_ROOT'] . '/../src/_config.ini';
         $config = parse_ini_file($_config_file_path);
         $_pdo = new \PDO($config['db_dsn'], $config['db_user'], $config['db_password']);
         return $_pdo;
@@ -57,7 +57,7 @@ class Document
      */
     private static function _tablename()
     {
-        $_config_file_path = $_SERVER['DOCUMENT_ROOT'] . '/../../src/_config.ini';
+        $_config_file_path = $_SERVER['DOCUMENT_ROOT'] . '/../src/_config.ini';
         $config = parse_ini_file($_config_file_path);
         $_tablename = $config['db_table'];
 
