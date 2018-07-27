@@ -12,10 +12,12 @@ class ComposerStaticInitb0b155d7b1decd2d4cafe647d11f3a28
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
+        '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         '948ad5488880985ff1c06721a4e447fe' => __DIR__ . '/..' . '/cakephp/utility/bootstrap.php',
         '028fdea3165c4ba1ecccc83b7fec69fc' => __DIR__ . '/..' . '/cakephp/collection/functions.php',
-        '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
+        'b067bc7112e384b61c701452d53a14a8' => __DIR__ . '/..' . '/mtdowling/jmespath.php/src/JmesPath.php',
+        '8a9dc1de0ca7e01f3e08231539562f61' => __DIR__ . '/..' . '/aws/aws-sdk-php/src/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -47,6 +49,10 @@ class ComposerStaticInitb0b155d7b1decd2d4cafe647d11f3a28
             'Psr\\Http\\Message\\' => 17,
             'Phinx\\' => 6,
         ),
+        'J' => 
+        array (
+            'JmesPath\\' => 9,
+        ),
         'G' => 
         array (
             'GuzzleHttp\\Psr7\\' => 16,
@@ -73,6 +79,10 @@ class ComposerStaticInitb0b155d7b1decd2d4cafe647d11f3a28
             'Cake\\Core\\' => 10,
             'Cake\\Collection\\' => 16,
             'Cake\\Cache\\' => 11,
+        ),
+        'A' => 
+        array (
+            'Aws\\' => 4,
         ),
     );
 
@@ -143,6 +153,10 @@ class ComposerStaticInitb0b155d7b1decd2d4cafe647d11f3a28
         array (
             0 => __DIR__ . '/..' . '/robmorgan/phinx/src/Phinx',
         ),
+        'JmesPath\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mtdowling/jmespath.php/src',
+        ),
         'GuzzleHttp\\Psr7\\' => 
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
@@ -203,6 +217,10 @@ class ComposerStaticInitb0b155d7b1decd2d4cafe647d11f3a28
         'Cake\\Cache\\' => 
         array (
             0 => __DIR__ . '/..' . '/cakephp/cache',
+        ),
+        'Aws\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/aws/aws-sdk-php/src',
         ),
     );
 

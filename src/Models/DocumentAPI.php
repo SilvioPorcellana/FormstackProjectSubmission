@@ -21,7 +21,7 @@ class DocumentAPI extends RESTable
      */
     public function __construct($request = '')
     {
-        parent::__construct($request);
+        return parent::__construct($request);
     }
 
 

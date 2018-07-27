@@ -18,11 +18,11 @@ namespace Models;
 
 class Document
 {
-    private $key;
-    private $value;
-    private $created_at;
-    private $updated_at;
-    private $exported_at;
+    public $key;
+    public $value;
+    public $created_at;
+    public $updated_at;
+    public $exported_at;
 
     /**
      * Document constructor.
@@ -30,10 +30,16 @@ class Document
      * @param $key
      * @param $value
      */
-    public function __construct($key, $value)
+    public function __construct(array $params = [])
     {
-        $this->key = $key;
-        $this->value = $value;
+        if ($params['key'])
+        {
+            $this->key = $params['key'];
+        }
+        if ($params['value'])
+        {
+            $this->value = $params['value'];
+        }
 
         return $this;
     }
@@ -46,7 +52,7 @@ class Document
      */
     private static function _pdo()
     {
-        $_config_file_path = $_SERVER['DOCUMENT_ROOT'] . '/../src/_config.ini';
+        $_config_file_path = $_SERVER['DOCUMENT_ROOT'] . '/../_config.ini';
         $config = parse_ini_file($_config_file_path);
         $_pdo = new \PDO($config['db_dsn'], $config['db_user'], $config['db_password']);
         return $_pdo;
@@ -57,7 +63,7 @@ class Document
      */
     private static function _tablename()
     {
-        $_config_file_path = $_SERVER['DOCUMENT_ROOT'] . '/../src/_config.ini';
+        $_config_file_path = $_SERVER['DOCUMENT_ROOT'] . '/../_config.ini';
         $config = parse_ini_file($_config_file_path);
         $_tablename = $config['db_table'];
 
@@ -102,6 +108,7 @@ class Document
             $query .= ' AND `key` LIKE :key ';
             $searchArray = ['key' => ('%' . $keyLike . '%')];
         }
+
         $statement = $_pdo->prepare($query);
         $statement->execute($searchArray);
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
@@ -109,7 +116,7 @@ class Document
         $return = [];
         foreach ($result as $row)
         {
-            $return[] = self::_createTaskFromArray($row);
+            $return[] = self::_convertRowToModel($row);
         }
 
         return $return;
@@ -168,17 +175,30 @@ class Document
      * @param $key
      * @param $value
      */
-    public function update($value)
+    public function update(array $values)
     {
-        $this->value = $value;
+        $query_update = [];
+        $query_values = [];
+
+        foreach ($values as $k => $v)
+        {
+            if (property_exists($this, $k))
+            {
+                $this->$k = $v;
+                $query_update[] = '`' . $k . '` = :' . $k;
+                $query_values[$k] = $v;
+            }
+        }
         $this->updated_at = time();
+        $query_update[] = '`updated_at` = :updated_at';
+        $query_values['updated_at'] = $this->updated_at;
 
         $_pdo = self::_pdo();
         $_tablename = self::_tablename();
 
-        $query = 'UPDATE `' . $_tablename . '` SET value = :value, updated_at = :updated_at WHERE key = "' . $this->key . '"';
+        $query = 'UPDATE `' . $_tablename . '` SET ' . implode(', ', $query_update) . ' WHERE `key` = "' . $this->key . '"';
         $statement = $_pdo->prepare($query);
-        if (! $statement->execute(['value' => $value, 'updated_at' => $this->updated_at]))
+        if (! $statement->execute($query_values))
         {
             throw new \BadMethodCallException('Cannot execute query [' . $statement->errorInfo()[2] . ']');
         }
@@ -204,7 +224,10 @@ class Document
             $values_query[$k] = $v;
         }
 
-        $query = 'UPDATE `' . $_tablename . '` SET ' . implode(', ', $params_query) . ' WHERE key LIKE "%' . $keyLike . '%"';
+        $query = 'UPDATE `' . $_tablename . '` SET ' . implode(', ', $params_query);
+        if ($keyLike) {
+            $query .= ' WHERE `key` LIKE "%' . $keyLike . '%"';
+        }
         $statement = $_pdo->prepare($query);
         if (! $statement->execute($values_query))
         {
@@ -222,8 +245,54 @@ class Document
         $_pdo = self::_pdo();
         $_tablename = self::_tablename();
 
-        $query = 'DELETE FROM `' . $_tablename . '` WHERE key = "' . $this->key . '"';
+        $query = 'DELETE FROM `' . $_tablename . '` WHERE `key` = "' . $this->key . '"';
         $count = $_pdo->exec($query);
         return $count;
     }
+
+
+    public static function getMaxCreatedAt()
+    {
+        $_pdo = self::_pdo();
+        $_tablename = self::_tablename();
+
+        $query = 'SELECT MAX(`created_at`) AS `max` FROM `' . $_tablename . '`';
+        $stmt = $_pdo->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $max = $result['max'];
+        return $max;
+    }
+
+
+    public static function getMaxUpdatedAt()
+    {
+        $_pdo = self::_pdo();
+        $_tablename = self::_tablename();
+
+        $query = 'SELECT MAX(`updated_at`) AS `max` FROM `' . $_tablename . '`';
+        $stmt = $_pdo->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $max = $result['max'];
+        return $max;
+    }
+
+
+    public static function formatDate($datetime, $format = '')
+    {
+        if (! $format)
+        {
+            $format = "F j, Y, g:i a";
+        }
+
+        if (is_numeric($datetime))
+        {
+            $datetime = date('Y-m-d H:i:s', $datetime);
+        }
+        $dt = new \DateTime($datetime);
+        return $dt->format($format);
+    }
+
+
 }

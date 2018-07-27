@@ -22,6 +22,7 @@ return array(
     'Symfony\\Component\\BrowserKit\\' => array($vendorDir . '/symfony/browser-kit'),
     'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-message/src'),
     'Phinx\\' => array($vendorDir . '/robmorgan/phinx/src/Phinx'),
+    'JmesPath\\' => array($vendorDir . '/mtdowling/jmespath.php/src'),
     'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
     'GuzzleHttp\\Promise\\' => array($vendorDir . '/guzzlehttp/promises/src'),
     'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
@@ -37,4 +38,5 @@ return array(
     'Cake\\Core\\' => array($vendorDir . '/cakephp/core'),
     'Cake\\Collection\\' => array($vendorDir . '/cakephp/collection'),
     'Cake\\Cache\\' => array($vendorDir . '/cakephp/cache'),
+    'Aws\\' => array($vendorDir . '/aws/aws-sdk-php/src'),
 );
