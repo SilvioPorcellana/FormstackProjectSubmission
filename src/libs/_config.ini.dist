@@ -1,0 +1,5 @@
+; db section
+[DB]
+db_dsn = "mysql:dbname=db_name;host=127.0.0.1"
+db_user = "root"
+db_password = "root"
