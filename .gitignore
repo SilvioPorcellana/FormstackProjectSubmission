@@ -1,1 +1,3 @@
 .idea
+phinx.yml
+codeception.yml
