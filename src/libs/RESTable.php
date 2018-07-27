@@ -283,7 +283,7 @@ abstract class RESTable
 
     protected function _header($code)
     {
-        header('HTTP/1.0 ' . $code . ' ' . $this->_requestStatus($code));
+        header('HTTP/1.1 ' . $code . ' ' . $this->_requestStatus($code));
     }
 }
 
