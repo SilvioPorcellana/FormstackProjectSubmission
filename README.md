@@ -9,7 +9,7 @@ To immediately deploy and use the project, follow this procedure:
 2) run `composer install`
 3) make local copies of `/codeception.yml.dist`, `src/_config.ini.dist` and `src/phinx.yml.dist` (if you are using Vagrant all you have to do is change the S3 key in `_config.ini`)
 4) (optionally) run `vagrant up` so you can start making API calls to `http://127.0.0.1:8080/api.php?request=v1/documents` (etc.) or to the
-5) (optioally) create a vhost in Apache and make the document root point to `src/public`
+5) (optionally) create a vhost in Apache and make the document root point to `src/public`
 
 ## Project Structure
 
