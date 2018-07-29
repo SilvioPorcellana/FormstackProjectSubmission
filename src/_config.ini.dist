@@ -1,6 +1,12 @@
 ; db section
 [DB]
-db_dsn = "mysql:dbname=db_name;host=127.0.0.1"
-db_user = "root"
-db_password = "root"
-db_table = "table_name"
+db_dsn = "mysql:dbname=formstack;host=localhost"
+db_user = "formstack"
+db_password = "password"
+db_table_documents = "documents"
+db_table_rows = "document_rows"
+
+[S3]
+s3_bucket = "formstack-silvioporcellana"
+s3_key = "AKIAI64X5LSNJPLUXE2Q"
+s3_secret = "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"
