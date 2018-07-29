@@ -2,3 +2,4 @@
 phinx.yml
 codeception.yml
 _config.ini
+.DS_Store
