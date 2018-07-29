@@ -1,28 +1,31 @@
 <?php
 
 namespace Models;
+use libs\DocumentPDO;
 
 /**
- * This is the main class for the Document model.
+ * This is the main class for the Document model. A Document has a one-to-many relationship with DocumentRows and
+ * some metadata such as created_at, updated_at etc.
  *
- * @property \PDO $pdo;
- * @property string $db_table
- *
- * @property string $key
- * @property string $value
+ * @property string $name
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $exported_at
+ * @property array $rows
  */
 
 
 class Document
 {
-    public $key;
-    public $value;
+    private $id;
+
+    public $name;
     public $created_at;
     public $updated_at;
     public $exported_at;
+    public $rows = [];
+
+    private $sql_fields = ['name', 'created_at', 'exported_at'];
 
     /**
      * Document constructor.
@@ -32,60 +35,88 @@ class Document
      */
     public function __construct(array $params = [])
     {
-        if ($params['key'])
+        if (isset($params['name']) && $params['name'])
         {
-            $this->key = $params['key'];
+            $this->name = $params['name'];
         }
-        if ($params['value'])
+        if (isset($params['rows']) && is_array($params['rows']) && count($params['rows']) > 0)
         {
-            $this->value = $params['value'];
+            $this->addRows($params['rows']);
         }
 
         return $this;
     }
 
 
-    /**
-     * These are two static function used in this class to read the PDO and table details from the config files
-     *
-     * @return \PDO
-     */
-    private static function _pdo()
+
+    public function addRows(array $rows)
     {
-        $_config_file_path = $_SERVER['DOCUMENT_ROOT'] . '/../_config.ini';
-        $config = parse_ini_file($_config_file_path);
-        $_pdo = new \PDO($config['db_dsn'], $config['db_user'], $config['db_password']);
-        return $_pdo;
+        foreach ($rows as $row)
+        {
+            if (is_array($row))
+            {
+                $this->addRow($row);
+            }
+        }
+
+        return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    private static function _tablename()
-    {
-        $_config_file_path = $_SERVER['DOCUMENT_ROOT'] . '/../_config.ini';
-        $config = parse_ini_file($_config_file_path);
-        $_tablename = $config['db_table'];
 
-        return $_tablename;
+
+    public function addRow(array $row)
+    {
+        $this->rows[] = DocumentRow::convertRowToModel($this->id, $row);
+        return $this;
     }
+
+
+    public function deleteRow($key)
+    {
+        $_ok_rows = [];
+
+        foreach ($this->rows as $row)
+        {
+            if ($row->key == $key)
+            {
+                $row->delete();
+            }
+            else
+            {
+                $_ok_rows[] = $row;
+            }
+        }
+
+        $this->update();
+
+        $this->rows = $_ok_rows;
+        return $this;
+    }
+
 
 
     /**
      * @param $key
      */
-    public static function find($key)
+    public static function find($id)
     {
-        $_pdo = self::_pdo();
-        $_tablename = self::_tablename();
-        $query = 'SELECT * FROM ' . $_tablename . ' WHERE `key` LIKE :key';
-        $statement = $_pdo->prepare($query);
-        $statement->execute(['key' => $key]);
+        $pdo = new DocumentPDO();
+
+        /**
+         * get document
+         */
+        $query = 'SELECT * FROM ' . $pdo->table_documents . ' WHERE `id` LIKE :id';
+        $statement = $pdo->pdo->prepare($query);
+        $statement->execute(['id' => $id]);
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
         $row = array_shift($result);
-        if ($row['key'])
+        if ($row['id'])
         {
-            return self::_convertRowToModel($row);
+            /**
+             * this takes care of getting also the rows
+             */
+            $model = self::_convertRowToModel($row);
+            return $model;
         }
 
         return false;
@@ -94,22 +125,21 @@ class Document
 
 
     /**
-     * @param string $keyLike
+     * @param string $nameLike
      */
-    public static function findAll($keyLike = '')
+    public static function findAll($nameLike = '')
     {
-        $_pdo = self::_pdo();
-        $_tablename = self::_tablename();
+        $pdo = new DocumentPDO();
         $searchArray = [];
 
-        $query = 'SELECT * FROM ' . $_tablename . ' WHERE 1';
-        if ($keyLike)
+        $query = 'SELECT * FROM ' . $pdo->table_documents . ' WHERE 1';
+        if ($nameLike)
         {
-            $query .= ' AND `key` LIKE :key ';
-            $searchArray = ['key' => ('%' . $keyLike . '%')];
+            $query .= ' AND `name` LIKE :name ';
+            $searchArray = ['name' => ('%' . $nameLike . '%')];
         }
 
-        $statement = $_pdo->prepare($query);
+        $statement = $pdo->pdo->prepare($query);
         $statement->execute($searchArray);
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -139,6 +169,11 @@ class Document
             }
         }
 
+        /**
+         * now get also rows
+         */
+        $document->rows = DocumentRow::findAll($document->id);
+
         return $document;
     }
 
@@ -151,132 +186,138 @@ class Document
     {
         $this->created_at = time();
 
-        $_pdo = self::_pdo();
-        $_tablename = self::_tablename();
+        $pdo = new DocumentPDO();
 
-        $query = 'INSERT INTO `' . $_tablename . '` ( `key`, `value`, `created_at` ) VALUES ( :key, :value, :created_at )';
-        $statement = $_pdo->prepare($query);
-        if (! $statement->execute(['key' => $this->key, 'value' => $this->value, 'created_at' => $this->created_at]))
+        foreach ($this->sql_fields as $sql_field)
+        {
+            if (! isset($this->$sql_field))
+            {
+                continue;
+            }
+            $query_insert_fieldnames[] = '`' . $sql_field . '`';
+            $query_insert_placeholders[] = ':' . $sql_field;
+            $query_values[$sql_field] = $this->$sql_field;
+        }
+
+        $query = 'INSERT INTO `' . $pdo->table_documents . '` ( ' . implode(', ', $query_insert_fieldnames) . ' ) VALUES ( ' . implode(', ', $query_insert_placeholders) . ' )';
+
+        #print_r(debug_backtrace()) . "\n\n";
+
+        $statement = $pdo->pdo->prepare($query);
+        if (! $statement->execute($query_values))
         {
             /*
              * TODO - debugging
              */
             print_r($statement->errorInfo());
-            throw new \BadMethodCallException('Cannot execute query [' . $statement->errorInfo()[2] . ']');
+            throw new \BadMethodCallException('Cannot execute query (' . $query . ') [' . $statement->errorInfo()[2] . ']');
         }
         else
         {
-            return $_pdo->lastInsertId();
+            /**
+             * save rows
+             */
+            if (is_array($this->rows))
+            {
+                foreach ($this->rows as $row)
+                {
+                    $row->document_id = $pdo->pdo->lastInsertId();
+                    $row->save();
+                }
+            }
+
+            return $pdo->pdo->lastInsertId();
         }
     }
+
 
 
     /**
      * @param $key
      * @param $value
      */
-    public function update(array $values)
+    public function update(array $values = [])
     {
+        $pdo = new DocumentPDO();
         $query_update = [];
         $query_values = [];
 
-        foreach ($values as $k => $v)
+        foreach ($this->sql_fields as $sql_field)
         {
-            if (property_exists($this, $k))
+            if (! isset($values[$sql_field]))
             {
-                $this->$k = $v;
-                $query_update[] = '`' . $k . '` = :' . $k;
-                $query_values[$k] = $v;
+                continue;
             }
+            $query_update[] = '`' . $sql_field . '` = :' . $sql_field;
+            $query_values[$sql_field] = isset($values[$sql_field]) ? $values[$sql_field] : $this->$sql_field;
         }
+
         $this->updated_at = time();
         $query_update[] = '`updated_at` = :updated_at';
         $query_values['updated_at'] = $this->updated_at;
 
-        $_pdo = self::_pdo();
-        $_tablename = self::_tablename();
-
-        $query = 'UPDATE `' . $_tablename . '` SET ' . implode(', ', $query_update) . ' WHERE `key` = "' . $this->key . '"';
-        $statement = $_pdo->prepare($query);
+        $query = 'UPDATE `' . $pdo->table_documents . '` SET ' . implode(', ', $query_update) . ' WHERE `id` = "' . $this->id . '"';
+        $statement = $pdo->pdo->prepare($query);
         if (! $statement->execute($query_values))
         {
             throw new \BadMethodCallException('Cannot execute query [' . $statement->errorInfo()[2] . ']');
         }
         else
         {
-            return $this->key;
+            if (is_array($values['rows'])) {
+                $_updated_rows = [];
+                foreach ($values['rows'] as $row_array)
+                {
+                    $row = DocumentRow::find($this->id, $row_array['key']);
+                    if ($row)
+                    {
+                        $row->update($row_array);
+                    }
+                    else
+                    {
+                        $row = new DocumentRow($this->id, $row_array);
+                        $row->save();
+                    }
+                    $_updated_rows[] = $row;
+                }
+                $this->rows = $_updated_rows;
+            }
+            return $this;
         }
     }
 
 
-    /**
-     * @param array $params
-     * @param string $keyLike
-     */
-    public static function updateAll(array $params, $keyLike = '')
+
+    public function updateRow($key, array $values = [])
     {
-        $_pdo = self::_pdo();
-        $_tablename = self::_tablename();
+        $row = DocumentRow::find($this->id, $key);
+        $row->update($values);
 
-        foreach ($params as $k => $v)
-        {
-            $params_query[] = $k . ' = :' . $k;
-            $values_query[$k] = $v;
-        }
-
-        $query = 'UPDATE `' . $_tablename . '` SET ' . implode(', ', $params_query);
-        if ($keyLike) {
-            $query .= ' WHERE `key` LIKE "%' . $keyLike . '%"';
-        }
-        $statement = $_pdo->prepare($query);
-        if (! $statement->execute($values_query))
-        {
-            throw new \BadMethodCallException('Cannot execute query [' . $statement->errorInfo()[2] . ']');
-        }
-        else
-        {
-            return 1;
-        }
+        $this->rows = DocumentRow::findAll($this->id);
+        return $this;
     }
+
 
 
     public function delete()
     {
-        $_pdo = self::_pdo();
-        $_tablename = self::_tablename();
+        $pdo = new DocumentPDO();
 
-        $query = 'DELETE FROM `' . $_tablename . '` WHERE `key` = "' . $this->key . '"';
-        $count = $_pdo->exec($query);
+        $query = 'DELETE FROM `' . $pdo->table_documents . '` WHERE `id` = "' . $this->id . '"';
+        $count = $pdo->pdo->exec($query);
+
+        DocumentRow::deleteAll($this->id);
+
         return $count;
     }
 
 
-    public static function getMaxCreatedAt()
-    {
-        $_pdo = self::_pdo();
-        $_tablename = self::_tablename();
 
-        $query = 'SELECT MAX(`created_at`) AS `max` FROM `' . $_tablename . '`';
-        $stmt = $_pdo->prepare($query);
-        $stmt->execute();
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-        $max = $result['max'];
-        return $max;
+    public function export($format = 'csv')
+    {
+        return DocumentExport::export($this->id);
     }
 
-
-    public static function getMaxUpdatedAt()
-    {
-        $_pdo = self::_pdo();
-        $_tablename = self::_tablename();
-
-        $query = 'SELECT MAX(`updated_at`) AS `max` FROM `' . $_tablename . '`';
-        $stmt = $_pdo->prepare($query);
-        $stmt->execute();
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-        $max = $result['max'];
-        return $max;
-    }
 
 
     public static function formatDate($datetime, $format = '')

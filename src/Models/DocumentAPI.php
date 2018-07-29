@@ -50,7 +50,7 @@ class DocumentAPI extends RESTable
     {
         if ($this->method == "GET")
         {
-            if ($args[0])
+            if (isset($args[0]) && $args[0])
             {
                 $document = Document::find($args[0]);
                 return $document;
@@ -68,6 +68,21 @@ class DocumentAPI extends RESTable
     }
 
 
+
+    public function export($args = [], $query = [])
+    {
+        if ($this->method == "GET" && isset($args[0]) && $args[0])
+        {
+            return DocumentExport::export($args[0], $query['format'], false);
+        }
+        else
+        {
+            throw new \BadMethodCallException();
+        }
+    }
+
+
+
     /**
      * CRUD operations on single document
      *
@@ -82,7 +97,10 @@ class DocumentAPI extends RESTable
             {
                 // it's an update
                 $document = Document::find($args[0]);
-                return $document->update($this->request);
+                if ($document)
+                {
+                    return $document->update($this->request);
+                }
             }
             else
             {
@@ -97,7 +115,10 @@ class DocumentAPI extends RESTable
             {
                 // it's an update
                 $document = Document::find($args[0]);
-                return $document->delete();
+                if ($document)
+                {
+                    return $document->delete();
+                }
             }
         }
         else

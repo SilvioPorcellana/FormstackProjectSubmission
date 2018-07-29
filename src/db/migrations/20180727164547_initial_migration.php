@@ -33,11 +33,20 @@ class InitialMigration extends AbstractMigration
     public function change()
     {
         $table = $this->table('documents');
-        $table->addColumn('key', 'string')
-            ->addColumn('value', 'string')
+        $table->addColumn('name', 'string')
             ->addColumn('created_at', 'integer')
             ->addColumn('updated_at', 'integer')
             ->addColumn('exported_at', 'integer')
+            ->addColumn('owner_key', 'string')
             ->save();
+
+        $table = $this->table('document_rows');
+        $table->addColumn('document_id', 'integer')
+            ->addColumn('key', 'string')
+            ->addColumn('value', 'string')
+            ->addColumn('created_at', 'integer')
+            ->addColumn('updated_at', 'integer')
+            ->save();
+
     }
 }

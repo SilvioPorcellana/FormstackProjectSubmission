@@ -18,7 +18,8 @@ require_once '../autoload.php';
 use Models\DocumentAPI;
 
 /**
- * The DocumentAPI class is a RESTable class that processes API calls through the "processAPI()" method
+ * The DocumentAPI class is a RESTable class that processes API calls through the "processAPI()" method, echoing
+ * results of operations in JSON format
  */
 $document_api = new DocumentAPI();
 echo $document_api->processAPI();

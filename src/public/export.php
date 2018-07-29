@@ -1,36 +1,21 @@
 <?php
 
 require_once '../autoload.php';
-$_default_format = 'csv';
 
-$max_created_at = \Models\Document::getMaxCreatedAt();
-$max_updated_at = \Models\Document::getMaxUpdatedAt();
 
-$documents = \Models\Document::findAll();
-// disable caching
-$now = gmdate("D, d M Y H:i:s");
-header("Expires: Tue, 03 Jul 2001 06:00:00 GMT");
-header("Cache-Control: max-age=0, no-cache, must-revalidate, proxy-revalidate");
-header("Last-Modified: {$now} GMT");
-
-// force download
-header("Content-Type: application/force-download");
-header("Content-Type: application/octet-stream");
-header("Content-Type: application/download");
-
-// disposition / encoding on response body
-header("Content-Disposition: attachment;filename=documents.csv");
-header("Content-Transfer-Encoding: binary");
-
-echo 'Most recent creation date: ' . \Models\Document::formatDate($max_created_at) . "\n";
-echo 'Most recent update date: ' . \Models\Document::formatDate($max_updated_at) . "\n";
-
-echo "\n";
-echo 'key,value' . "\n";
-
-foreach ($documents as $document)
+if (! isset($_GET['document_id']))
 {
-    echo $document->key . ',' . $document->value . "\n";
+    echo "Please provide a document_id";
+    die;
+}
+
+if (isset($_GET['export_to']) && $_GET['export_to'])
+{
+    echo \Models\DocumentExport::exportTo($_GET['document_id'], $_GET['export_to']);
+}
+else
+{
+    echo \Models\DocumentExport::export($_GET['document_id'], (isset($_GET['format']) ? $_GET['format'] : false));
 }
 
 ?>
