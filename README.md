@@ -56,6 +56,8 @@ The system uses the Phinx migrations system (see <https://phinx.org/>) to manage
 ### Tests
 The system uses [Codeception](https://codeception.com/) for creating and managing tests. All tests are located in the `/tests` directory and can be executed by executing `./src/vendor/codeception/codeception/codecept run` from the command line
 
+----
+
 ### Vagrant
 
-Once the `vagrant up` script is executed from the root of the project, the system will be automatically setup, the database created, migrations executed and also the tests performed. This will ensure that the system is correctly setup so that it can be immediately accessed with calls to `http://127.0.0.1:8080/api.php?request=v1/...` such as `http://127.0.0.1:8080/api.php?request=v1/exportTo/2`
+Once the `vagrant up` command is executed from the root of the project, the system will be automatically setup, the database created, migrations executed and also the tests performed. This will ensure that the system is correctly setup so that it can be immediately accessed with calls to `http://127.0.0.1:8080/api.php?request=v1/...` such as `http://127.0.0.1:8080/api.php?request=v1/exportTo/2`
