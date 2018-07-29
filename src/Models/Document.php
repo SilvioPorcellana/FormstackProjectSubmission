@@ -17,7 +17,7 @@ use libs\DocumentPDO;
 
 class Document
 {
-    private $id;
+    public $id;
 
     public $name;
     public $created_at;
