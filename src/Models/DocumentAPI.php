@@ -4,7 +4,7 @@
  * This is the RESTable class that implements the processAPI method which will then call the appropriate method,
  * depending on the actual request
  *
- * @see the task-manager-api.raml file for the full specification on the API
+ * @see the documents.raml file for the full specification on the API
  */
 
 namespace Models;
@@ -74,6 +74,19 @@ class DocumentAPI extends RESTable
         if ($this->method == "GET" && isset($args[0]) && $args[0])
         {
             return DocumentExport::export($args[0], $query['format'], false);
+        }
+        else
+        {
+            throw new \BadMethodCallException();
+        }
+    }
+
+    public function exportTo($args = [], $query = [])
+    {
+        if ($this->method == "GET" && isset($args[0]) && $args[0])
+        {
+            return DocumentExport::exportTo($args[0], $query['to'], $query['format'], false);
+
         }
         else
         {

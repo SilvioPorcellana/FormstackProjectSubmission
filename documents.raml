@@ -1,0 +1,166 @@
+#%RAML 1.0
+---
+title: Documents API
+baseUri: http://127.0.0.1/api.php?request={version}
+version: v1
+
+/documents
+  description: "The list of documents"
+  get:
+    description: "Retrieves the list of documents"
+    queryParameters:
+      s:
+        description: "Search for a name"
+        required: false
+        type: string
+        example: "documentname"
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              [
+                {
+                  "id": "1",
+                  "name": "document_vagrant2",
+                  "created_at": "1532872710",
+                  "updated_at": 1532872789,
+                  "exported_at": "1532872772",
+                  "rows": [
+                      {
+                          "document_id": "1",
+                          "key": "key2",
+                          "value": "value2",
+                          "created_at": "1532872710",
+                          "updated_at": 1532872789
+                      }
+                  ]
+                }
+              ]
+/documents/{document_id}
+    description: "Single document"
+    get:
+      description: "Retrieves a single document with ID = {document_id}"
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                {
+                  "id": "1",
+                  "name": "document_vagrant2",
+                  "created_at": "1532872710",
+                  "updated_at": 1532872789,
+                  "exported_at": "1532872772",
+                  "rows": [
+                      {
+                          "document_id": "1",
+                          "key": "key2",
+                          "value": "value2",
+                          "created_at": "1532872710",
+                          "updated_at": 1532872789
+                      }
+                  ]
+                }
+/document
+  description: "CRUD operations on single document"
+  post:
+    description: "Creates a new document"
+    body:
+      application/json:
+        type: |
+          {
+            "type": "object",
+            "$schema": "http://json-schema.org/draft-03/schema",
+            "id": "http://jsonschema.net",
+            "required": true,
+            "properties": {
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "rows": {
+                "type": "array",
+                "required": false
+              },
+            }
+          }
+        example: |
+          {
+            "name": "document name",
+            "rows": [
+              {
+                "key": "key2",
+                "value": "value2",
+              }
+            ]
+          }
+/document/{document_id}
+  post:
+    description: "Updates an existing document, identified by {document_id}"
+    body:
+      application/json:
+        type: |
+          {
+            "type": "object",
+            "$schema": "http://json-schema.org/draft-03/schema",
+            "id": "http://jsonschema.net",
+            "required": true,
+            "properties": {
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "rows": {
+                "type": "array",
+                "required": false
+              },
+            }
+          }
+        example: |
+          {
+            "name": "document name",
+            "rows": [
+              {
+                "key": "key2",
+                "value": "value2",
+              }
+            ]
+          }
+  delete:
+    description: "Deletes the document (and all its rows) identified by {document_id}"
+/export/{document_id}
+  get:
+    description: "Exports the contents of a document"
+    queryParameters:
+      format:
+        description: "The format of the exported file"
+        required: false
+        type: string
+        example: "csv"
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              "Document created at: July 29, 2018, 8:19 pm\n\nkey,value\nkey2,value_vagrant\n"
+/exportTo/{document_id}
+  get:
+    description: "Exports the contents of a document to a cloud hosting provider"
+    queryParameters:
+      to:
+        description: "The destination of the exported file"
+        required: false
+        type: string
+        example: "s3"
+      format:
+        description: "The format of the exported file"
+        required: false
+        type: string
+        example: "csv"
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              "https://formstack-silvioporcellana.s3.amazonaws.com/documents.csv\n"
