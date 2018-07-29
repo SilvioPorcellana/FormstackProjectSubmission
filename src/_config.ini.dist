@@ -8,5 +8,5 @@ db_table_rows = "document_rows"
 
 [S3]
 s3_bucket = "formstack-silvioporcellana"
-s3_key = "AKIAI64X5LSNJPLUXE2Q"
+s3_key = "AKIAI64X5LSNJPLUXE2Q_removethis"
 s3_secret = "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"
