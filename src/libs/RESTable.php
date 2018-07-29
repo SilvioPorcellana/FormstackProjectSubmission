@@ -79,10 +79,18 @@ abstract class RESTable
         {
             $request = isset($_REQUEST['request']) ? $_REQUEST['request'] : false;
         }
+        if (empty($request))
+        {
+            $request = $_SERVER['REDIRECT_URL'];
+        }
+
         if (! $request)
         {
             return false;
         }
+
+        // remove (optional) initial slash from request (we get this in the REDIRECT_URL)
+        $request = preg_replace('/^\//', '', $request);
 
         $this->_preFlightCheck();
 
@@ -93,25 +101,6 @@ abstract class RESTable
         $this->args = explode('/', rtrim($request, '/'));
         $this->version = array_shift($this->args);
         $this->endpoint = array_shift($this->args);
-        if (is_array($this->args) && count($this->args) > 0)
-        {
-            $_arg = array_shift($this->args);
-            /**
-             * it's a verb (non numeric) - shift it from the list of args
-             */
-            if (! is_numeric($_arg))
-            {
-                $this->verb = $_arg;
-                unset($this->args);
-            }
-            /**
-             * it's numeric (in the form /v1/tasks/1) - let's add it back to the list of args
-             */
-            else
-            {
-                array_unshift($this->args, $_arg);
-            }
-        }
         /**
          * add other query string params to the $query property
          */
@@ -264,7 +253,8 @@ abstract class RESTable
     {
         $this->_header($status);
         header('Content-Type: application/json');
-        return json_encode($data);
+        $json = json_encode($data);
+        return $json;
     }
 
 

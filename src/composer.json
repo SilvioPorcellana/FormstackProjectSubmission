@@ -1,6 +1,7 @@
 {
     "require": {
-        "robmorgan/phinx": "^0.10.5"
+        "robmorgan/phinx": "^0.10.5",
+        "aws/aws-sdk-php": "^3.64"
     },
     "require-dev": {
         "codeception/codeception": "^2.4"
