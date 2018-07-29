@@ -13,3 +13,6 @@ service apache2 start
 mysql -u root < /vagrant/vagrant/user.sql
 cd /vagrant/src;
 vendor/bin/phinx migrate -e development
+
+cd /vagrant
+./src/vendor/codeception/codeception/codecept run
