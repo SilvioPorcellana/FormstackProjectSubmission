@@ -7,9 +7,9 @@ This project is my submission for the requirements outlined in the "[Lead Engine
 To immediately deploy and use the project, follow this procedure:
 1) clone the repo and open a terminal window in the repo root
 2) run `composer install`
-3) make local copies of `/codeception.yml.dist`, `src/_config.ini.dist` and `src/phinx.yml.dist`
-4) run `vagrant up` 
-5) you can now start making API calls to `http://127.0.0.1:8080/api.php?request=v1/documents` (etc.)
+3) make local copies of `/codeception.yml.dist`, `src/_config.ini.dist` and `src/phinx.yml.dist` (if you are using Vagrant all you have to do is change the S3 key in `_config.ini`)
+4) (optionally) run `vagrant up` so you can start making API calls to `http://127.0.0.1:8080/api.php?request=v1/documents` (etc.) or to the
+5) (optioally) create a vhost in Apache and make the document root point to `src/public`
 
 ## Project Structure
 
@@ -42,7 +42,7 @@ This folder contains two "helper" classes:
 #### Config
 
 The config details are kept in 3 files:
-* `src/_config.ini`
+* `src/_config.ini` (please remember to edit the S3 key here)
 * `src/phinx.ini` (for migrations)
 * `src/codeception.yml` (for tests)
 
