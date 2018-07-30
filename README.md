@@ -9,7 +9,7 @@ To immediately deploy and use the project, follow this procedure:
 2) run `composer install`
 3) make local copies of `/codeception.yml.dist`, `src/_config.ini.dist` and `src/phinx.yml.dist` (if you are using Vagrant all you have to do is change the S3 key in `_config.ini`)
 4) (optionally - Vagrant) run `vagrant up` so you can start making API calls to `http://127.0.0.1:8080/api.php?request=v1/documents` (etc.)
-5) (optionally - no Vagrant) create a vhost in Apache and make the document root point to `src/public`
+5) (optionally - no Vagrant) create a vhost in Apache and make the document root point to `src/public` and execute migrations
 
 ## Project Structure
 
@@ -23,7 +23,7 @@ The two main models are `Document` and `DocumentRow`, with a one-to-many relatio
 
 In addition to the two main models for Documents and their corresponding rows, the `\Models` folders contains two other classes:
 * the `DocumentExport` class, used for providing "helper" methods when exporting `Documents`
-* the `DocumentAPI` class. This is a pretty interesting widgets in itself: it extends the [RESTable](src/libs/RESTable.php) class which in turns allows any model to be accessed via REST. So this class exposes the actual methods that can be called via REST, allowing the API controller to just require a simple `processAPI` call to perform the required action (API for this project are outlined in the appropriate [RAML](documents.raml) file)  
+* the `DocumentAPI` class. This is a pretty interesting widgets in itself: it extends the [RESTable](src/libs/RESTable.php) class which allows any model to have their methods accessed via REST. This class "maps" the methods/actions accessible via REST to the actual methods of the Document model, essentially exposing it via REST and therefore allowing the API controller to just require a simple `processAPI` call to perform the required action (API for this project are outlined in the project [RAML](documents.raml) file)  
 
 ### Controllers
 
