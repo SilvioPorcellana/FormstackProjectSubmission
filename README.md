@@ -1,6 +1,6 @@
 # Project Submission - Silvio Porcellana
 
-This project is my submission for the requirements outlined in the "[Lead Engineering Project](Lead_Engineer_Project.pdf)" document.
+This project is my submission for the requirements outlined in the aforementioned document.
 
 ### Quick Start
 
